@@ -89,7 +89,11 @@ if ($null -eq $clientId) {
         --display-name $clientIdentityName `
         --query appId
 
-    Write-Host "Created successfully (client App ID: $clientId)"
+    Write-Host "Created successfully (Client App ID: $clientId)"
+    
+    Write-Host "Generating secure client secret (Client App ID: $clientId)"
+    $clientSecret = az ad app credential reset --id $clientId --query password
+    $clientSecret = $clientSecret.Remove($clientSecret.Length - 1, 1).Remove(0, 1) # Remove lead/trail quotes
 
     Write-Host "Assign API Permission for $clientIdentityName"
     az ad app permission add `
@@ -120,7 +124,7 @@ Write-Host "`nClient Credentials Authentication Example (cURL):`n"
 Write-Host "curl --location \"
 Write-Host "  --request POST $authority \"
 Write-Host "  --form grant_type=client_credentials \"
-Write-Host "  --form client_id=$serviceNowId \".Replace('"', '')
+Write-Host "  --form client_id=$clientId \".Replace('"', '')
 Write-Host "  --form client_secret=$clientSecret \"
 Write-Host "  --form scope=$appIdentityId/.default`n"
 
