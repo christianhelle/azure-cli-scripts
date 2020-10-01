@@ -105,12 +105,6 @@ if ($null -eq $clientId) {
     Start-Sleep -Seconds 30 # This ARBITRARY delay time is required otherwise next call to grant admin consent will fail (SOMETIMES!)
     az ad app permission admin-consent --id $clientId
 
-    Write-Host "Granting Permission"
-    Start-Sleep -Seconds 30 # This ARBITRARY delay time is required otherwise next call to grant permission will fail (SOMETIMES!)
-    az ad app permission grant `
-        --id $clientId `
-        --api $appId
-
 } else {
     Write-Host "Client App Registration already exists (App ID: $clientId)"
 }
