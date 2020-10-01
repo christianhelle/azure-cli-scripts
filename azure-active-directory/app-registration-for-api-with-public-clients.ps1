@@ -16,6 +16,11 @@ param (
     [string]
     $appIdentityUri,
 
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $redirectUri,
+
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
@@ -63,10 +68,7 @@ if ($null -eq $appId) {
     Write-Host "Created successfully (API App ID: $appId)"
 
     Write-Host "Creating Service Principal"
-    $spnId = az ad sp create --id $appId --query objectId
-
-    Write-Host "Enable Require Role Assignment on Service Principal"
-    az ad sp update --id $spnId --set "appRoleAssignmentRequired=true"
+    az ad sp create --id $appId --query objectId
 
 } else {
     Write-Host "API App Registration already exists (App ID: $appId)"
@@ -87,6 +89,8 @@ if ($null -eq $clientId) {
     Write-Host "Creating new App Registration"
     $clientId = az ad app create `
         --display-name $clientIdentityName `
+        --oauth2-allow-implicit-flow true `
+        --reply-urls $redirectUri `
         --query appId
 
     Write-Host "Created successfully (Client App ID: $clientId)"
@@ -97,15 +101,15 @@ if ($null -eq $clientId) {
         --api $appId `
         --api-permissions "$appRoleId=Role"
 
+    Write-Host "Grant Admin Consent for API Permissions"
+    Start-Sleep -Seconds 30 # This ARBITRARY delay time is required otherwise next call to grant admin consent will fail (SOMETIMES!)
+    az ad app permission admin-consent --id $clientId
+
     Write-Host "Granting Permission"
     Start-Sleep -Seconds 30 # This ARBITRARY delay time is required otherwise next call to grant permission will fail (SOMETIMES!)
     az ad app permission grant `
         --id $clientId `
         --api $appId
-
-    Write-Host "Grant Admin Consent for API Permissions"
-    Start-Sleep -Seconds 30 # This ARBITRARY delay time is required otherwise next call to grant admin consent will fail (SOMETIMES!)
-    az ad app permission admin-consent --id $clientId
 
 } else {
     Write-Host "Client App Registration already exists (App ID: $clientId)"
