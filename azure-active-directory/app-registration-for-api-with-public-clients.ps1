@@ -90,7 +90,7 @@ if ($null -eq $clientId) {
     $clientId = az ad app create `
         --display-name $clientIdentityName `
         --oauth2-allow-implicit-flow true `
-        --reply-urls "$redirectUris" `
+        --reply-urls $redirectUris `
         --query appId
 
     Write-Host "Created successfully (Client App ID: $clientId)"
