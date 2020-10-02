@@ -19,7 +19,7 @@ param (
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
-    $redirectUri,
+    $redirectUris,
 
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
@@ -90,7 +90,7 @@ if ($null -eq $clientId) {
     $clientId = az ad app create `
         --display-name $clientIdentityName `
         --oauth2-allow-implicit-flow true `
-        --reply-urls $redirectUri `
+        --reply-urls "$redirectUris" `
         --query appId
 
     Write-Host "Created successfully (Client App ID: $clientId)"
