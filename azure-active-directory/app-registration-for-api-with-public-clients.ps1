@@ -110,6 +110,15 @@ if ($null -eq $clientId) {
     az ad app permission grant `
         --id $clientId `
         --api $appId
+    
+    Write-Host "Setting up Redirect URI's for SPA Clients"
+    $clientObjectId = az ad app show --id $clientId --query objectId
+    $clientObjectId = $clientObjectId.Remove($clientObjectId.Length - 1, 1).Remove(0, 1)
+    az rest `
+        --method PATCH `
+        --uri "https://graph.microsoft.com/v1.0/applications/$clientObjectId" `
+        --headers "Content-Type=application/json" `
+        --body "{\""spa\"":{\""redirectUris\"":[\""$redirectUris\""]}}"
 
 } else {
     Write-Host "Client App Registration already exists (App ID: $clientId)"
